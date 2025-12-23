@@ -5,37 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPTV 資源管理中心</title>
     <style>
-        :root { 
-            --bg: #f5f7fa; --card: #ffffff; --primary: #0070f3; --text: #333; --secondary: #666; --border: #eee;
-        }
-        /* 深色模式樣式 */
-        body.dark-mode { 
-            --bg: #121212; --card: #1e1e1e; --primary: #3291ff; --text: #e0e0e0; --secondary: #aaa; --border: #333; 
-        }
-        
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); transition: background 0.3s; }
+        :root { --bg: #f5f7fa; --card: #ffffff; --primary: #0070f3; --text: #333; --secondary: #666; --border: #eee; }
+        body.dark-mode { --bg: #121212; --card: #1e1e1e; --primary: #3291ff; --text: #e0e0e0; --secondary: #aaa; --border: #333; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); transition: 0.3s; }
         header { text-align: center; padding: 10px 0; position: relative; }
-        
-        /* 切換按鈕樣式 */
-        #themeToggle { position: absolute; right: 20px; top: 20px; cursor: pointer; background: var(--card); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; color: var(--text); font-size: 14px; }
-
+        #themeToggle { position: absolute; right: 0; top: 10px; cursor: pointer; background: var(--card); border: 1px solid var(--border); padding: 5px 10px; border-radius: 15px; color: var(--text); font-size: 12px; }
         .controls { max-width: 800px; margin: 0 auto 30px; display: flex; gap: 10px; flex-wrap: wrap; }
-        #searchInput { flex: 1; min-width: 200px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); outline: none; }
-        #sortSelect { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
-        .card { background: var(--card); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        .img-box { height: 110px; display: flex; align-items: center; justify-content: center; background: rgba(128,128,128,0.1); border-radius: 8px; margin-bottom: 12px; font-size: 50px; }
-        img { max-width: 85%; max-height: 85%; object-fit: contain; }
-        .name { font-size: 13px; font-weight: 600; margin-bottom: 4px; line-height: 1.4; word-break: break-all; min-height: 2.8em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .info { font-size: 10px; color: var(--secondary); margin-bottom: 12px; display: flex; flex-direction: column; gap: 2px; }
-
-        .btn-group { display: flex; gap: 8px; margin-top: auto; }
-        .copy-btn { flex: 3; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        .dl-btn { flex: 1; background: #34c759; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; text-decoration: none; text-align: center; }
-        
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 50px; display: none; z-index: 100; }
-        .loading { text-align: center; grid-column: 1 / -1; padding: 50px; color: var(--secondary); }
+        #searchInput { flex: 1; min-width: 150px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); outline: none; }
+        #sortSelect { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; max-width: 1200px; margin: 0 auto; }
+        .card { background: var(--card); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .img-box { height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(128,128,128,0.1); border-radius: 6px; margin-bottom: 8px; font-size: 40px; }
+        img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .name { font-size: 13px; font-weight: 600; margin-bottom: 5px; word-break: break-all; min-height: 2.8em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .info { font-size: 10px; color: var(--secondary); margin-bottom: 10px; }
+        .btn-group { display: flex; gap: 5px; margin-top: auto; }
+        .copy-btn { flex: 2; background: var(--primary); color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .dl-btn { flex: 1; background: #34c759; color: white; border: none; padding: 8px; border-radius: 5px; text-decoration: none; text-align: center; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; display: none; }
+        .loading { text-align: center; grid-column: 1 / -1; padding: 50px; }
     </style>
 </head>
 <body>
@@ -48,16 +36,12 @@
 <div class="controls">
     <input type="text" id="searchInput" placeholder="搜尋檔名...">
     <select id="sortSelect">
-        <option value="date-desc">時間 (最新在前)</option>
-        <option value="date-asc">時間 (最舊在前)</option>
         <option value="name-asc">名稱 (A-Z)</option>
-        <option value="size-desc">大小 (由大到小)</option>
+        <option value="size-desc">大小 (大→小)</option>
     </select>
 </div>
 
-<div class="grid" id="iconGrid">
-    <div class="loading">正在同步 GitHub 數據 (包含時間)...</div>
-</div>
+<div class="grid" id="iconGrid"><div class="loading">正在載入資源...</div></div>
 <div id="toast">✅ 已複製網址</div>
 
 <script>
@@ -65,78 +49,60 @@
     const repoName = "icons";
     let allFiles = [];
 
-    // 1. 深色模式按鈕邏輯
-    const themeToggle = document.getElementById('themeToggle');
-    themeToggle.addEventListener('click', () => {
+    // 主題切換
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.onclick = () => {
         document.body.classList.toggle('dark-mode');
-        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-    });
-    if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+        localStorage.setItem('iptv-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    };
+    if(localStorage.getItem('iptv-theme') === 'dark') document.body.classList.add('dark-mode');
 
-    // 2. 獲取資料 (解決時間排序問題)
     async function fetchFiles() {
         try {
-            // 首先獲取檔案列表
             const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/contents/`);
+            if (!res.ok) throw new Error(res.status === 403 ? "訪問太頻繁，請一小時後再試" : "讀取失敗");
             const data = await res.json();
-            const filesOnly = data.filter(f => !/\.(html|md)$/i.test(f.name) && !f.name.startsWith('.'));
-
-            // 為了解決日期排序，我們獲取最近的 Commits
-            // 注意：這會顯示檔案被「上傳」的時間
-            const commitRes = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/commits?per_page=100`);
-            const commits = await commitRes.json();
-
-            allFiles = filesOnly.map(file => {
-                // 嘗試從 commit 紀錄中匹配該檔案的最後修改時間（簡化版）
-                return {
-                    name: file.name,
-                    size: (file.size / 1024).toFixed(1),
-                    isImage: /\.(png|jpe?g|gif|svg|webp)$/i.test(file.name),
-                    // 如果檔案較新，預設一個時間，精確時間需個別 API 請求
-                    date: new Date(commits[0]?.commit.committer.date).getTime() 
-                };
-            });
-
-            // 更好的做法：獲取每個檔案的最後修改日期
-            // 為了效能，我們這裡進行批量處理
-            await Promise.all(allFiles.map(async (file) => {
-                const fRes = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/commits?path=${file.name}&per_page=1`);
-                const fData = await fRes.json();
-                if (fData.length > 0) {
-                    file.date = new Date(fData[0].commit.committer.date).getTime();
-                    file.dateStr = new Date(fData[0].commit.committer.date).toLocaleString();
-                }
-            }));
-
+            
+            allFiles = data.filter(f => !/\.(html|md)$/i.test(f.name) && !f.name.startsWith('.'))
+                           .map(f => ({
+                               name: f.name,
+                               size: (f.size / 1024).toFixed(1),
+                               isImage: /\.(png|jpe?g|gif|svg|webp)$/i.test(f.name)
+                           }));
             renderFiles();
         } catch (e) {
-            document.getElementById('iconGrid').innerHTML = "載入失敗";
+            document.getElementById('iconGrid').innerHTML = `<div class="loading">❌ ${e.message}</div>`;
         }
     }
 
+    function getFileIcon(n) {
+        const e = n.split('.').pop().toLowerCase();
+        if(['mp4','mkv','mov'].includes(e)) return '🎬';
+        if(['m3u','m3u8'].includes(e)) return '📂';
+        if(['apk'].includes(e)) return '🤖';
+        return '📄';
+    }
+
     function renderFiles() {
-        let filtered = allFiles.filter(f => f.name.toLowerCase().includes(document.getElementById('searchInput').value.toLowerCase()));
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const sort = document.getElementById('sortSelect').value;
         
-        const sortVal = document.getElementById('sortSelect').value;
-        if (sortVal === 'date-desc') filtered.sort((a, b) => b.date - a.date);
-        if (sortVal === 'date-asc') filtered.sort((a, b) => a.date - b.date);
-        if (sortVal === 'name-asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
-        if (sortVal === 'size-desc') filtered.sort((a, b) => b.size - a.size);
+        let filtered = allFiles.filter(f => f.name.toLowerCase().includes(search));
+        
+        if(sort === 'name-asc') filtered.sort((a,b) => a.name.localeCompare(b.name));
+        if(sort === 'size-desc') filtered.sort((a,b) => b.size - a.size);
 
         const grid = document.getElementById('iconGrid');
-        grid.innerHTML = '';
+        grid.innerHTML = filtered.length ? '' : '<div class="loading">無匹配檔案</div>';
         
-        filtered.forEach(file => {
-            const url = window.location.origin + '/' + encodeURIComponent(file.name);
+        filtered.forEach(f => {
+            const url = window.location.origin + '/' + encodeURIComponent(f.name);
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <div class="img-box">${file.isImage ? `<img src="${url}">` : '📄'}</div>
-                <div class="name">${file.name}</div>
-                <div class="info">
-                    <span>📏 ${file.size} KB</span>
-                    <span>📅 ${file.dateStr || '未知'}</span>
-                </div>
+                <div class="img-box">${f.isImage ? `<img src="${url}">` : getFileIcon(f.name)}</div>
+                <div class="name">${f.name}</div>
+                <div class="info">📏 ${f.size} KB</div>
                 <div class="btn-group">
                     <button class="copy-btn" onclick="copyUrl('${url}')">複製</button>
                     <a href="${url}" download class="dl-btn">⬇️</a>
@@ -146,15 +112,14 @@
         });
     }
 
-    function copyUrl(url) {
-        navigator.clipboard.writeText(url);
+    function copyUrl(u) {
+        navigator.clipboard.writeText(u);
         const t = document.getElementById('toast');
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 2000);
+        t.style.display='block'; setTimeout(()=>t.style.display='none', 2000);
     }
 
-    document.getElementById('searchInput').addEventListener('input', renderFiles);
-    document.getElementById('sortSelect').addEventListener('change', renderFiles);
+    document.getElementById('searchInput').oninput = renderFiles;
+    document.getElementById('sortSelect').onchange = renderFiles;
     fetchFiles();
 </script>
 </body>
