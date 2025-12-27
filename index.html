@@ -15,14 +15,14 @@
         #sortSelect { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; max-width: 1200px; margin: 0 auto; }
         .card { background: var(--card); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .img-box { height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(128,128,128,0.1); border-radius: 6px; margin-bottom: 8px; font-size: 40px; }
-        img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .img-box { height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(128,128,128,0.1); border-radius: 6px; margin-bottom: 8px; font-size: 40px; overflow: hidden; }
+        .img-box img { width: 100%; height: 100%; object-fit: contain; }
         .name { font-size: 13px; font-weight: 600; margin-bottom: 5px; word-break: break-all; min-height: 2.8em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .info { font-size: 10px; color: var(--secondary); margin-bottom: 10px; }
         .btn-group { display: flex; gap: 5px; margin-top: auto; }
         .copy-btn { flex: 2; background: var(--primary); color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-        .dl-btn { flex: 1; background: #34c759; color: white; border: none; padding: 8px; border-radius: 5px; text-decoration: none; text-align: center; }
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; display: none; }
+        .dl-btn { flex: 1; background: #34c759; color: white; border: none; padding: 8px; border-radius: 5px; text-decoration: none; text-align: center; font-size: 12px; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; display: none; z-index: 100; }
         .loading { text-align: center; grid-column: 1 / -1; padding: 50px; }
     </style>
 </head>
@@ -49,7 +49,7 @@
     const repoName = "icons";
     let allFiles = [];
 
-    // 主題切換
+    // 主題切換邏輯
     const themeBtn = document.getElementById('themeToggle');
     themeBtn.onclick = () => {
         document.body.classList.toggle('dark-mode');
@@ -57,17 +57,21 @@
     };
     if(localStorage.getItem('iptv-theme') === 'dark') document.body.classList.add('dark-mode');
 
+    // 取得檔案列表
     async function fetchFiles() {
         try {
+            // 使用 GitHub API 獲取檔案資訊
             const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}/contents/`);
-            if (!res.ok) throw new Error(res.status === 403 ? "訪問太頻繁，請一小時後再試" : "讀取失敗");
+            if (!res.ok) throw new Error(res.status === 403 ? "GitHub API 限制，請稍後再試" : "讀取失敗");
             const data = await res.json();
             
+            // 過濾掉 html, md 檔案，並提取所需資訊
             allFiles = data.filter(f => !/\.(html|md)$/i.test(f.name) && !f.name.startsWith('.'))
                            .map(f => ({
                                name: f.name,
                                size: (f.size / 1024).toFixed(1),
-                               isImage: /\.(png|jpe?g|gif|svg|webp)$/i.test(f.name)
+                               isImage: /\.(png|jpe?g|gif|svg|webp)$/i.test(f.name),
+                               downloadUrl: f.download_url // 這是關鍵：使用 raw.githubusercontent.com 連結
                            }));
             renderFiles();
         } catch (e) {
@@ -75,6 +79,7 @@
         }
     }
 
+    // 根據副檔名返回圖示
     function getFileIcon(n) {
         const e = n.split('.').pop().toLowerCase();
         if(['mp4','mkv','mov'].includes(e)) return '🎬';
@@ -83,43 +88,52 @@
         return '📄';
     }
 
+    // 渲染畫面
     function renderFiles() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const sort = document.getElementById('sortSelect').value;
         
         let filtered = allFiles.filter(f => f.name.toLowerCase().includes(search));
         
-        if(sort === 'name-asc') filtered.sort((a,b) => a.name.localeCompare(b.name));
+        if(sort === 'name-asc') filtered.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
         if(sort === 'size-desc') filtered.sort((a,b) => b.size - a.size);
 
         const grid = document.getElementById('iconGrid');
         grid.innerHTML = filtered.length ? '' : '<div class="loading">無匹配檔案</div>';
         
         filtered.forEach(f => {
-            const url = window.location.origin + '/' + encodeURIComponent(f.name);
+            const url = f.downloadUrl; 
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <div class="img-box">${f.isImage ? `<img src="${url}">` : getFileIcon(f.name)}</div>
-                <div class="name">${f.name}</div>
+                <div class="img-box">
+                    ${f.isImage ? `<img src="${url}" loading="lazy" alt="${f.name}">` : getFileIcon(f.name)}
+                </div>
+                <div class="name" title="${f.name}">${f.name}</div>
                 <div class="info">📏 ${f.size} KB</div>
                 <div class="btn-group">
                     <button class="copy-btn" onclick="copyUrl('${url}')">複製</button>
-                    <a href="${url}" download class="dl-btn">⬇️</a>
+                    <a href="${url}" target="_blank" download class="dl-btn">⬇️</a>
                 </div>
             `;
             grid.appendChild(card);
         });
     }
 
+    // 複製功能
     function copyUrl(u) {
-        navigator.clipboard.writeText(u);
-        const t = document.getElementById('toast');
-        t.style.display='block'; setTimeout(()=>t.style.display='none', 2000);
+        navigator.clipboard.writeText(u).then(() => {
+            const t = document.getElementById('toast');
+            t.style.display='block'; 
+            setTimeout(()=>t.style.display='none', 2000);
+        });
     }
 
+    // 監聽搜尋與排序
     document.getElementById('searchInput').oninput = renderFiles;
     document.getElementById('sortSelect').onchange = renderFiles;
+
+    // 啟動
     fetchFiles();
 </script>
 </body>
